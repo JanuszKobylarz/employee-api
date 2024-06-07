@@ -23,12 +23,12 @@ class Employee
     #[ORM\Column(length: 255)]
     private ?string $position = null;
 
-    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'parent')]
+    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'children')]
     private ?self $parent = null;
+
 
     public function __construct()
     {
-        $this->parent = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -80,28 +80,6 @@ class Employee
     public function setParent(?self $parent): static
     {
         $this->parent = $parent;
-
-        return $this;
-    }
-
-    public function addParent(self $parent): static
-    {
-        if (!$this->parent->contains($parent)) {
-            $this->parent->add($parent);
-            $parent->setParent($this);
-        }
-
-        return $this;
-    }
-
-    public function removeParent(self $parent): static
-    {
-        if ($this->parent->removeElement($parent)) {
-            // set the owning side to null (unless already changed)
-            if ($parent->getParent() === $this) {
-                $parent->setParent(null);
-            }
-        }
 
         return $this;
     }
