@@ -14,9 +14,12 @@ use Symfony\Component\Routing\Attribute\Route;
 class EmployeeController extends AbstractController
 {
     #[Route('/employees', name: 'get_employee', methods:['get'])]
-    public function index(ManagerRegistry $managerRegistry): JsonResponse
+    public function index(ManagerRegistry $managerRegistry, Request $request): JsonResponse
     {
-        $employees = $managerRegistry->getRepository(Employee::class)->findAll();
+        $parent = $request->get('parent');
+        $employees = $managerRegistry->
+            getRepository(Employee::class)->
+            findBy(['parent' => $parent]);
         $response = [];
 
         foreach($employees as $employee){
@@ -29,14 +32,16 @@ class EmployeeController extends AbstractController
     public function add(ManagerRegistry $managerRegistry, Request $request): JsonResponse
     {
         try {
+            $content = $request->getPayload();
+
             $entityManager = $managerRegistry->getManager();
             $employee = new Employee();
-            $employee->setName($request->request->get('name'));
-            $employee->setSurname($request->request->get('surname'));
-            $employee->setPosition($request->request->get('position'));
+            $employee->setName($content->get('name'));
+            $employee->setSurname($content->get('surname'));
+            $employee->setPosition($content->get('position'));
 
             //TODO:: Add Validation
-            if (null !== $request->request->get('parent_id')) {
+            if (null !== $content->get('parent_id')) {
                 $parent = $managerRegistry->getRepository(Employee::class)->find($request->request->get('parent_id'));
                 if(null === $parent) {
                     throw new EntityNotFoundException('Parent not found');
@@ -51,7 +56,7 @@ class EmployeeController extends AbstractController
 
             return $this->json($response);
         } catch (\Throwable $exception){
-            return $this->json([$exception->getMessage()]);
+            return $this->json([[$exception->getMessage(), $content]]);
         }
     }
 
