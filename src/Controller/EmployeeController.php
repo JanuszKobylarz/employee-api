@@ -60,6 +60,22 @@ class EmployeeController extends AbstractController
         }
     }
 
+    //Search Employee by name
+    #[Route('/employee/search', name: 'search_employee', methods:['get'])]
+    public function search(ManagerRegistry $managerRegistry, Request $request): JsonResponse
+    {
+        $name = $request->get('name');
+        $employees = $managerRegistry->
+            getRepository(Employee::class)->search($name);
+        $response = [];
+
+        foreach($employees as $employee){
+            $response[] = $this->getEmployeeData($employee);
+        }
+        return $this->json($response);
+    }
+
+
     private function getEmployeeData(Employee $employee): array {
         return [
             'id' => $employee->getId(),
