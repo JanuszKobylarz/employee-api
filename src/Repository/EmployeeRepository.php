@@ -20,9 +20,9 @@ class EmployeeRepository extends ServiceEntityRepository
     public function search(string $search): array
     {
         return $this->createQueryBuilder('e')
-            ->where('e.name LIKE :search')
-            ->orWhere('e.surname LIKE :search')
+            ->where('e.position LIKE :search')
             ->setParameter('search', "%$search%")
+            ->groupBy('e.position')
             ->getQuery()
             ->getResult();
     }
