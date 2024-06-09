@@ -6,10 +6,12 @@ use App\Repository\EmployeeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Validator as App;
 
 #[ORM\Entity(repositoryClass: EmployeeRepository::class)]
+#[UniqueEntity(fields: ['name', 'surname'], message: 'Employee with this name and surname already exists.')]
 class Employee
 {
     #[ORM\Id]
