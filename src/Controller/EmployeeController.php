@@ -20,7 +20,7 @@ class EmployeeController extends AbstractController
         $parent = $request->get('parent');
         $employees = $managerRegistry->
             getRepository(Employee::class)->
-            findBy(['parent' => $parent]);
+            findBy(['parent' => $parent], ['surname' => 'ASC']);
         $response = [];
 
         foreach($employees as $employee){
