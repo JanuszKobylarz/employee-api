@@ -3,13 +3,12 @@
 namespace App\Controller;
 
 use App\Entity\Employee;
-use Doctrine\ORM\EntityNotFoundException;
+use App\Service\EmployeeAddService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/api', name: 'api_')]
 class EmployeeController extends AbstractController
@@ -30,47 +29,16 @@ class EmployeeController extends AbstractController
     }
 
     #[Route('/employee', name: 'add_employee', methods:['post'])]
-    public function add(ManagerRegistry $managerRegistry, Request $request, ValidatorInterface $validator): JsonResponse
+    public function add(Request $request, EmployeeAddService $addService): JsonResponse
     {
         try {
             $content = $request->getPayload();
 
-            $entityManager = $managerRegistry->getManager();
-            $employee = new Employee();
+            $addService->addEmployee($content);
 
-            $employee->setName($content->get('name'));
-            $employee->setSurname($content->get('surname'));
-            $employee->setPosition($content->get('position'));
-
-            if(empty($content->get('name')) || empty($content->get('surname')) || empty($content->get('position'))){
-                throw new \InvalidArgumentException('Name, Surname and Position are required');
-            }
-
-            $errors = $validator->validate($employee);
-
-            if (count($errors) > 0) {
-                $errorsString = (string) $errors;
-
-                return $this->json(['errors' => $errorsString], 400);
-            }
-
-            //TODO:: Add Validation
-            if (null !== $content->get('parent_id')) {
-                $parent = $managerRegistry->getRepository(Employee::class)->find($content->get('parent_id'));
-                if(null === $parent) {
-                    throw new EntityNotFoundException('Parent not found');
-                }
-                $employee->setParent($parent);
-            }
-
-            $entityManager->persist($employee);
-            $entityManager->flush();
-
-            $response = $this->getEmployeeData($employee);
-
-            return $this->json($response);
+            return $this->json('Employee added successfully', 201);
         } catch (\Throwable $exception){
-            return $this->json([$exception->getMessage(), $exception->getTraceAsString()], 500);
+            return $this->json([$exception->getMessage()], 500);
         }
     }
 
