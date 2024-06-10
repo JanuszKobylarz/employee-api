@@ -34,11 +34,11 @@ class EmployeeController extends AbstractController
         try {
             $content = $request->getPayload();
 
-            $addService->addEmployee($content);
+            $employee = $addService->addEmployee($content);
 
-            return $this->json('Employee added successfully', 201);
+            return $this->json($this->getEmployeeData($employee), 201);
         } catch (\Throwable $exception){
-            return $this->json([$exception->getMessage()], 500);
+            return $this->json(['error' => $exception->getMessage()], 500);
         }
     }
 

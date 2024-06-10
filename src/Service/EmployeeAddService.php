@@ -14,7 +14,7 @@ class EmployeeAddService
     }
 
 
-    public function addEmployee($content): void
+    public function addEmployee($content): Employee
     {
         if (empty($content->get('name')) || empty($content->get('surname')) || empty($content->get('position'))) {
             throw new \InvalidArgumentException('Name, Surname and Position are required');
@@ -29,7 +29,7 @@ class EmployeeAddService
         $errors = $this->validator->validate($employee);
 
         if (count($errors) > 0) {
-            throw new \InvalidArgumentException($errors);
+            throw new \InvalidArgumentException($errors->get(0)->getMessage());
         }
 
         if (null !== $content->get('parent_id')) {
@@ -44,5 +44,7 @@ class EmployeeAddService
 
         $entityManager->persist($employee);
         $entityManager->flush();
+
+        return $employee;
     }
 }

@@ -8,7 +8,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
-use App\Validator as App;
 
 #[ORM\Entity(repositoryClass: EmployeeRepository::class)]
 #[UniqueEntity(fields: ['name', 'surname'], message: 'Employee with this name and surname already exists.')]
@@ -27,6 +26,10 @@ class Employee
         minMessage: "Name must be at least {{ limit }} characters long",
         maxMessage: "Name cannot be longer than {{ limit }} characters"
     )]
+    #[Assert\Regex(
+        pattern: "/^[\p{L}\s]*$/u",
+        message: "Name can only contain letters and spaces"
+    )]
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]
@@ -37,6 +40,10 @@ class Employee
         minMessage: "Surname must be at least {{ limit }} characters long",
         maxMessage: "Surname cannot be longer than {{ limit }} characters"
     )]
+    #[Assert\Regex(
+        pattern: "/^[\p{L}\s]*$/u",
+        message: "Surname can only contain letters and spaces"
+    )]
     private ?string $surname = null;
 
     #[ORM\Column(length: 255)]
@@ -44,10 +51,13 @@ class Employee
     #[Assert\Length(
         min: 2,
         max: 255,
-        minMessage: "Surname must be at least {{ limit }} characters long",
-        maxMessage: "Surname cannot be longer than {{ limit }} characters"
+        minMessage: "Postion must be at least {{ limit }} characters long",
+        maxMessage: "Postion cannot be longer than {{ limit }} characters"
     )]
-    #[App\ContainsOnlyLetters]
+    #[Assert\Regex(
+        pattern: "/^[\p{L}\s]*$/u",
+        message: "Postion can only contain letters and spaces"
+    )]
     private ?string $position = null;
 
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'children')]
